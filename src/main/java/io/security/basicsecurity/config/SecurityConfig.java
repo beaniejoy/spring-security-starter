@@ -34,7 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 .anyRequest().authenticated()
-                ;
+        ;
 
         // 인증 API
         http
@@ -63,7 +63,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     }
                 })
                 .permitAll()
-                ;
+        ;
 
         // 로그아웃 API
         http
@@ -84,13 +84,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     }
                 })
                 .deleteCookies("remember-me")
-        .and()
+                .and()
                 // remember me API
                 .rememberMe()
                 .rememberMeParameter("remember-me")
                 .tokenValiditySeconds(3600)
                 .alwaysRemember(false) // 기본적으로 false로 하는 것이 맞다.
                 .userDetailsService(userDetailsService)
-                ;
+        ;
+
+        // 동시 세션 제어 API
+        http
+                .sessionManagement()
+                .maximumSessions(1)                 // 최대 허용 가능 세션 수
+                .maxSessionsPreventsLogin(false)    // true: 최대 허용 세션 수 넘으면 새로 로그인 못함, false: 이전 사용자 세션을 만료시킴
+                .expiredUrl("/expired")             // 세션 만료시 이동할 페이지
+        ;
+
+        // 세션 고정 보호
+        http
+                .sessionManagement()                // default: changeSessionId
+                .sessionFixation().none();          // changeSessionId, none, migrateSession, newSession
+        ;
     }
 }
